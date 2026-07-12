@@ -1,0 +1,341 @@
+/* ============================================================
+   Design tokens
+   Brief calls for: modern educational SaaS, blue & white, dark
+   mode. Blue is deliberately an indigo-leaning blue (not default
+   Bootstrap #007bff) to feel like a considered product color.
+   Signature element: a small pulsing "AI" dot used consistently
+   wherever content is AI-generated, so the eye learns to trust
+   the mark - not decoration, it means "the model wrote this part."
+   ============================================================ */
+:root {
+  --blue-600:   #2F5FE0;
+  --blue-700:   #2447B3;
+  --blue-100:   #E8EEFD;
+  --ink:        #16213A;
+  --ink-soft:   #4A5670;
+  --bg:         #F6F8FC;
+  --surface:    #FFFFFF;
+  --border:     #E1E6F0;
+  --success-bg: #E7F6EE;
+  --success-tx: #17794D;
+  --danger-bg:  #FDEBEA;
+  --danger-tx:  #B3261E;
+  --warn-bg:    #FFF6E0;
+  --warn-tx:    #8A6100;
+  --text-muted: #6B7488;
+  --radius:     10px;
+  --radius-sm:  6px;
+  --font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-body:    'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --shadow-sm: 0 1px 2px rgba(22, 33, 58, 0.06);
+  --shadow-md: 0 6px 20px rgba(22, 33, 58, 0.08);
+}
+
+[data-theme="dark"] {
+  --blue-600:   #6E8FF5;
+  --blue-700:   #8FA8F8;
+  --blue-100:   #1C2748;
+  --ink:        #EAEEF9;
+  --ink-soft:   #B7C0D6;
+  --bg:         #0F1626;
+  --surface:    #172038;
+  --border:     #293552;
+  --success-bg: #123825;
+  --success-tx: #59D89A;
+  --danger-bg:  #3B1B1A;
+  --danger-tx:  #F19891;
+  --warn-bg:    #3A2E0E;
+  --warn-tx:    #F2C75C;
+  --text-muted: #93A0BD;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  margin: 0 0 0.4em;
+  font-weight: 600;
+}
+
+a { color: var(--blue-700); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+:focus-visible {
+  outline: 3px solid var(--blue-600);
+  outline-offset: 2px;
+}
+
+/* ---------------- AI signature mark ---------------- */
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--blue-700);
+  background: var(--blue-100);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.ai-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue-600);
+  box-shadow: 0 0 0 0 rgba(47, 95, 224, 0.55);
+  animation: ai-pulse 1.8s ease-out infinite;
+}
+@keyframes ai-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(47, 95, 224, 0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(47, 95, 224, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 95, 224, 0); }
+}
+
+/* ---------------- Top header (auth pages / simple pages) ---------------- */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+  flex-shrink: 0;
+}
+
+.site-nav { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; }
+.nav-user { color: var(--text-muted); }
+.site-nav a { font-weight: 600; }
+
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------------- Layout ---------------- */
+.site-main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------------- App shell (dashboards with sidebar) ---------------- */
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar .brand { padding: 8px 10px 20px; }
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.sidebar a:hover { background: var(--blue-100); color: var(--blue-700); text-decoration: none; }
+.sidebar a.active { background: var(--blue-600); color: #fff; }
+
+.app-content { padding: 28px 32px; }
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* ---------------- Cards / auth forms ---------------- */
+.auth-card {
+  max-width: 420px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-card h1 { font-size: 1.5rem; }
+.muted { color: var(--text-muted); margin-top: -8px; }
+
+.auth-switch {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------------- Forms ---------------- */
+.form-group { margin-bottom: 16px; }
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus { border-color: var(--blue-600); }
+
+/* ---------------- Buttons ---------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-primary { background: var(--blue-600); color: #fff; }
+.btn-primary:hover { background: var(--blue-700); color: #fff; text-decoration: none; }
+
+.btn-secondary { background: transparent; color: var(--blue-700); border-color: var(--border); }
+.btn-secondary:hover { background: var(--blue-100); text-decoration: none; }
+
+.btn-block { width: 100%; }
+.btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+
+/* ---------------- Alerts / badges ---------------- */
+.alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; margin-bottom: 14px; }
+.alert-error   { background: var(--danger-bg);  color: var(--danger-tx); }
+.alert-success { background: var(--success-bg); color: var(--success-tx); }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.badge-pending  { background: var(--warn-bg);    color: var(--warn-tx); }
+.badge-approved { background: var(--success-bg); color: var(--success-tx); }
+.badge-rejected { background: var(--danger-bg);  color: var(--danger-tx); }
+
+/* ---------------- Dashboard placeholder / stat cards ---------------- */
+.dashboard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.stat-card .value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+.stat-card .label { color: var(--text-muted); font-size: 0.82rem; }
+
+/* ---------------- Floating AI chat button (Study Assistant) ---------------- */
+.fab-chat {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 860px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; } /* replaced by a mobile nav drawer when that page is built */
+  .app-content { padding: 20px; }
+}
+
+@media (max-width: 600px) {
+  .site-header { padding: 12px 16px; }
+  .site-main { padding: 24px 14px; }
+  .auth-card { padding: 24px 20px; }
+}
