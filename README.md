@@ -61,12 +61,14 @@ uploads/     uploaded past-question files, OUTSIDE the web root on purpose
 - [x] Past question repository: upload, OCR, admin review/approve, student search/download/favorite
 - [x] AI Question Solver (quick answer / detailed / explain / similar questions, with feedback + save)
 - [x] Examination timetable (admin scheduling with clash detection + student filtered view)
-- [ ] AI Study Assistant chatbot + floating widget
-- [ ] AI analytics dashboard (page exists as a placeholder)
+- [x] AI Study Assistant chatbot (full page + floating widget, can solve questions directly)
+- [x] AI analytics dashboard (live SQL over existing data — downloads, AI usage, feedback, searches)
+- [x] Admin: manage students (search/filter, edit profile, suspend/reactivate)
+- [x] Forgot / reset password flow
+- [x] Profile page (self-service, both roles: edit details + change password)
+- [x] Landing page (root URL now shows a real intro page instead of redirecting straight to login)
 - [ ] Exam Prediction Engine
 - [ ] Document auto-classification (AI-suggested tags on upload)
-- [ ] Profile settings page
-- [ ] Landing page
 - [ ] Security hardening pass
 - [ ] Deployment guide
 
@@ -120,6 +122,29 @@ scan. Raise both to something like `20M` in `php.ini`, then restart Apache/your 
    heavily during development should still cost cents, not dollars.
    Check your provider's current pricing page before relying on exact figures.
 
+## AI Study Assistant notes
+- No new tables — conversation history lives in the PHP session
+  (`includes/assistant.php`), so it's per-login and resets on logout/clear.
+  Every turn is still logged to `ai_interactions` (type `chat`) for analytics.
+- The assistant can now **solve past questions directly in chat**, two ways:
+  - Paste a question's text straight into the chat — it just answers it.
+  - Mention a course code and/or question number ("solve question 3 of
+    CSC301") — `find_relevant_question_items()` looks it up in the
+    repository (course code match → question number match → falls back to
+    a full-text topic search) and feeds the matched content to the AI, which
+    is told to say exactly which paper/question it used.
+- It's also given real data about the student (department, level, courses,
+  paper counts, actual upcoming exam dates) for the "when is my next exam"
+  style questions, and is told to admit when it doesn't have enough data
+  rather than guess.
+- Floating widget (bottom-right bubble) and the full `/student/assistant.php`
+  page share the same session history and the same `/api/chat.php` endpoint
+  — `public/assets/js/chat-widget.js` is the one script both use.
+- `/api/chat.php` has a bare-minimum 2-second throttle per session since
+  every message costs a real API call — fine for a demo, but a proper
+  per-user rate-limit table (like `login_attempts`) would be worth adding
+  before any real deployment.
+
 ## Timetable module notes
 - Add rooms first (there's a quick-add form right on the timetable page),
   then courses (`/admin/courses.php`), then you can schedule exam slots.
@@ -129,6 +154,26 @@ scan. Raise both to something like `20M` in `php.ini`, then restart Apache/your 
   database is the final backstop in case two admins save at the same instant.
 - Students only see slots for courses in their own department + level.
 - Scheduling a slot fires an in-app broadcast notification automatically.
+
+## New modules notes
+- **Manage Students** (`/admin/students.php`, `student_edit.php`): search/filter
+  by name, email, reg number, or department; suspend/reactivate a student
+  (suspension is enforced where it matters — `attempt_login()` already only
+  matches `status = 'active'`, so a suspended student is locked out
+  immediately, nothing extra needed there); edit lets admin fix a wrong
+  department/level/reg-number.
+- **Forgot/reset password** (`/forgot_password.php`, `/reset_password.php`):
+  uses the `password_resets` table that already existed in the schema.
+  Shows the same generic message whether or not the email is registered
+  (stops the page being used to check who has an account). Tries PHP's
+  `mail()` first, but since XAMPP has no SMTP server configured by default
+  that will silently fail locally — so in `debug: true` mode the reset link
+  is also shown directly on screen, purely so you can test/demo the flow
+  without setting up real email. **Set `debug: false` before any real
+  deployment**, or that on-screen link becomes a security hole.
+- **Analytics** (`/admin/analytics.php`): all pure SQL aggregation over data
+  already being written elsewhere (download counts, `ai_interactions`,
+  `answer_feedback`, `search_logs`) — no new tables, nothing to configure.
 
 ## Auth module notes
 - Only students can self-register at `/register.php`. Lecturer and admin

@@ -1,6 +1,7 @@
     </div>
   </div>
 </div>
+<?php require __DIR__ . '/chat_widget.php'; ?>
 <script>
   document.getElementById('themeToggle').addEventListener('click', function () {
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';

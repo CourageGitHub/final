@@ -197,3 +197,98 @@ function register_student(array $data): array
 
     return ['success' => true, 'errors' => []];
 }
+
+/**
+ * Password reset flow. Only the token's SHA-256 hash is ever stored - the
+ * raw token exists only in the emailed/displayed link, same pattern as a
+ * bcrypt password hash never storing the original password.
+ * Returns the raw token, or null if no active account matches that email
+ * (the caller should show the same generic message either way, so an
+ * attacker can't use this to discover which emails are registered).
+ */
+function request_password_reset(string $email): ?string
+{
+    $stmt = db()->prepare("SELECT id FROM users WHERE email = :email AND status = 'active' LIMIT 1");
+    $stmt->execute(['email' => $email]);
+    $userId = $stmt->fetchColumn();
+
+    if ($userId === false) {
+        return null;
+    }
+
+    $token     = bin2hex(random_bytes(32));
+    $tokenHash = hash('sha256', $token);
+    $expiresAt = (new DateTime())->modify('+30 minutes')->format('Y-m-d H:i:s');
+
+    db()->prepare(
+        'INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (:uid, :hash, :expires)'
+    )->execute(['uid' => $userId, 'hash' => $tokenHash, 'expires' => $expiresAt]);
+
+    audit_log((int) $userId, 'password_reset_requested');
+
+    return $token;
+}
+
+function verify_reset_token(string $token): ?array
+{
+    $tokenHash = hash('sha256', $token);
+
+    $stmt = db()->prepare(
+        "SELECT id AS reset_id, user_id FROM password_resets
+         WHERE token_hash = :hash AND used = 0 AND expires_at > NOW()
+         ORDER BY id DESC LIMIT 1"
+    );
+    $stmt->execute(['hash' => $tokenHash]);
+    $row = $stmt->fetch();
+
+    return $row ?: null;
+}
+
+/** @return array{success: bool, error: ?string} */
+function complete_password_reset(string $token, string $newPassword): array
+{
+    if (strlen($newPassword) < 8) {
+        return ['success' => false, 'error' => 'Password must be at least 8 characters.'];
+    }
+
+    $reset = verify_reset_token($token);
+    if (!$reset) {
+        return ['success' => false, 'error' => 'This reset link is invalid or has expired.'];
+    }
+
+    $pdo = db();
+    $pdo->prepare('UPDATE users SET password_hash = :hash WHERE id = :id')
+        ->execute(['hash' => password_hash($newPassword, PASSWORD_DEFAULT), 'id' => $reset['user_id']]);
+    $pdo->prepare('UPDATE password_resets SET used = 1 WHERE id = :id')
+        ->execute(['id' => $reset['reset_id']]);
+
+    audit_log((int) $reset['user_id'], 'password_reset_completed');
+
+    return ['success' => true, 'error' => null];
+}
+
+/** For a logged-in user changing their own password (requires current password). */
+function change_password(int $userId, string $currentPassword, string $newPassword, string $confirmPassword): array
+{
+    if (strlen($newPassword) < 8) {
+        return ['success' => false, 'error' => 'New password must be at least 8 characters.'];
+    }
+    if ($newPassword !== $confirmPassword) {
+        return ['success' => false, 'error' => 'New passwords do not match.'];
+    }
+
+    $stmt = db()->prepare('SELECT password_hash FROM users WHERE id = :id');
+    $stmt->execute(['id' => $userId]);
+    $hash = $stmt->fetchColumn();
+
+    if ($hash === false || !password_verify($currentPassword, $hash)) {
+        return ['success' => false, 'error' => 'Current password is incorrect.'];
+    }
+
+    db()->prepare('UPDATE users SET password_hash = :hash WHERE id = :id')
+        ->execute(['hash' => password_hash($newPassword, PASSWORD_DEFAULT), 'id' => $userId]);
+
+    audit_log($userId, 'password_change');
+
+    return ['success' => true, 'error' => null];
+}

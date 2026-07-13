@@ -52,6 +52,7 @@ require __DIR__ . '/../includes/partials/header.php';
     <div class="form-group">
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
+      <p style="margin:6px 0 0;"><a href="/forgot_password.php" style="font-size:0.85rem;">Forgot password?</a></p>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block">Log in</button>

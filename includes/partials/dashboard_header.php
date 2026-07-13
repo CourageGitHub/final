@@ -27,17 +27,21 @@ $activeNav = $activeNav ?? '';
     <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>PQ &amp; Timetable</span></div>
     <?php if ($user['role'] === 'admin'): ?>
       <a href="/admin/index.php" class="<?= $activeNav === 'dashboard' ? 'active' : '' ?>">Dashboard</a>
+      <a href="/admin/students.php" class="<?= $activeNav === 'students' ? 'active' : '' ?>">Students</a>
       <a href="/admin/courses.php" class="<?= $activeNav === 'courses' ? 'active' : '' ?>">Courses</a>
       <a href="/admin/questions.php" class="<?= $activeNav === 'questions' ? 'active' : '' ?>">Past Questions</a>
       <a href="/admin/timetable.php" class="<?= $activeNav === 'timetable' ? 'active' : '' ?>">Timetable</a>
       <a href="/admin/analytics.php" class="<?= $activeNav === 'analytics' ? 'active' : '' ?>">Analytics</a>
       <a href="/admin/notifications.php" class="<?= $activeNav === 'notifications' ? 'active' : '' ?>">Notifications</a>
+      <a href="/profile.php" class="<?= $activeNav === 'profile' ? 'active' : '' ?>">Profile</a>
     <?php else: ?>
       <a href="/student/index.php" class="<?= $activeNav === 'dashboard' ? 'active' : '' ?>">Dashboard</a>
       <a href="/student/repository.php" class="<?= $activeNav === 'repository' ? 'active' : '' ?>">Past Questions</a>
+      <a href="/student/assistant.php" class="<?= $activeNav === 'assistant' ? 'active' : '' ?>">AI Assistant</a>
       <a href="/student/timetable.php" class="<?= $activeNav === 'timetable' ? 'active' : '' ?>">Timetable</a>
       <a href="/student/favorites.php" class="<?= $activeNav === 'favorites' ? 'active' : '' ?>">Favorites</a>
       <a href="/student/notifications.php" class="<?= $activeNav === 'notifications' ? 'active' : '' ?>">Notifications</a>
+      <a href="/profile.php" class="<?= $activeNav === 'profile' ? 'active' : '' ?>">Profile</a>
     <?php endif; ?>
   </aside>
   <div>

@@ -26,6 +26,7 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/ai.php';
+require_once __DIR__ . '/assistant.php';
 require_once __DIR__ . '/ocr.php';
 require_once __DIR__ . '/uploads.php';
 
