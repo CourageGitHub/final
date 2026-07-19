@@ -41,6 +41,10 @@ return [
         ],
     ],
 
-    // Set to false in production
+    // Controls two things: (1) whether PHP errors are shown on screen vs
+    // just logged, and (2) whether forgot_password.php shows the reset
+    // link on screen (only useful because local dev has no mail server).
+    // MUST be false before this ever goes anywhere someone else can reach -
+    // both behaviors leak information you don't want strangers to have.
     'debug' => true,
 ];

@@ -266,6 +266,27 @@ textarea {
 
 input:focus, select:focus, textarea:focus { border-color: var(--blue-600); }
 
+/* ---------------- Password show/hide toggle ---------------- */
+.password-field { position: relative; }
+.password-field input { padding-right: 42px; }
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.password-toggle:hover { color: var(--ink); }
+.password-toggle svg { width: 18px; height: 18px; }
+
 /* ---------------- Buttons ---------------- */
 .btn {
   display: inline-flex;

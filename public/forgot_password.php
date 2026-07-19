@@ -54,7 +54,7 @@ require __DIR__ . '/../includes/partials/header.php';
     <?= csrf_field() ?>
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" required autofocus>
+      <input type="email" id="email" name="email" placeholder="kofimensah@gmail.com" required autofocus>
     </div>
     <button type="submit" class="btn btn-primary btn-block">Send reset link</button>
   </form>

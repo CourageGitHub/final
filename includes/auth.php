@@ -21,6 +21,14 @@ function current_user(): ?array
     return $_SESSION['user'] ?? null;
 }
 
+/** True if this user's account is still active right now (not suspended since they logged in). */
+function user_is_currently_active(int $userId): bool
+{
+    $stmt = db()->prepare('SELECT status FROM users WHERE id = :id');
+    $stmt->execute(['id' => $userId]);
+    return $stmt->fetchColumn() === 'active';
+}
+
 function require_login(): array
 {
     $user = current_user();
@@ -28,6 +36,16 @@ function require_login(): array
         flash('error', 'Please log in to continue.');
         redirect('/login.php');
     }
+
+    // Re-check status on every request. Without this, suspending a student
+    // (or an admin) only stops their NEXT login - their current session
+    // would otherwise keep working until it naturally expires.
+    if (!user_is_currently_active($user['id'])) {
+        logout_user();
+        flash('error', 'Your account is no longer active. Contact an administrator.');
+        redirect('/login.php');
+    }
+
     return $user;
 }
 
@@ -219,6 +237,11 @@ function request_password_reset(string $email): ?string
     $token     = bin2hex(random_bytes(32));
     $tokenHash = hash('sha256', $token);
     $expiresAt = (new DateTime())->modify('+30 minutes')->format('Y-m-d H:i:s');
+
+    // Invalidate any older unused reset links for this user - only the
+    // newest one should ever work.
+    db()->prepare('UPDATE password_resets SET used = 1 WHERE user_id = :uid AND used = 0')
+        ->execute(['uid' => $userId]);
 
     db()->prepare(
         'INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (:uid, :hash, :expires)'

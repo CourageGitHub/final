@@ -46,12 +46,12 @@ require __DIR__ . '/../includes/partials/header.php';
 
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" value="<?= old('email') ?>" required autofocus>
+      <input type="email" id="email" name="email" placeholder="Enter your email address" value="<?= old('email') ?>" required autofocus>
     </div>
 
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
       <p style="margin:6px 0 0;"><a href="/forgot_password.php" style="font-size:0.85rem;">Forgot password?</a></p>
     </div>
 

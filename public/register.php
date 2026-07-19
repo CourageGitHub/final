@@ -10,16 +10,25 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-    $result = register_student($_POST);
 
-    if ($result['success']) {
-        flash('success', 'Account created. You can log in now.');
-        clear_old();
-        redirect('/login.php');
+    // Basic anti-spam: block rapid repeat submissions (bots filling the form
+    // in a loop). Real users only submit this form once every few seconds anyway.
+    if (time() - (int) ($_SESSION['register_last_attempt'] ?? 0) < 3) {
+        $errors[] = 'Please wait a moment before trying again.';
+        set_old($_POST);
+    } else {
+        $_SESSION['register_last_attempt'] = time();
+        $result = register_student($_POST);
+
+        if ($result['success']) {
+            flash('success', 'Account created. You can log in now.');
+            clear_old();
+            redirect('/login.php');
+        }
+
+        $errors = $result['errors'];
+        set_old($_POST);
     }
-
-    $errors = $result['errors'];
-    set_old($_POST);
 }
 
 $departments = db()->query('SELECT id, name FROM departments ORDER BY name')->fetchAll();
@@ -40,17 +49,17 @@ require __DIR__ . '/../includes/partials/header.php';
 
     <div class="form-group">
       <label for="full_name">Full name</label>
-      <input type="text" id="full_name" name="full_name" value="<?= old('full_name') ?>" required>
+      <input type="text" id="full_name" name="full_name" placeholder="Enter your full name" value="<?= old('full_name') ?>" required>
     </div>
 
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" value="<?= old('email') ?>" required>
+      <input type="email" id="email" name="email" placeholder="Enter your email address" value="<?= old('email') ?>" required>
     </div>
 
     <div class="form-group">
       <label for="identifier">Matric / registration number (optional)</label>
-      <input type="text" id="identifier" name="identifier" value="<?= old('identifier') ?>">
+      <input type="text" id="identifier" name="identifier" placeholder="0324080404" value="<?= old('identifier') ?>">
     </div>
 
     <div class="form-group">
@@ -75,7 +84,7 @@ require __DIR__ . '/../includes/partials/header.php';
 
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" minlength="8" required>
+      <input type="password" id="password" name="password" placeholder="Enter your password" minlength="8" required>
     </div>
 
     <div class="form-group">

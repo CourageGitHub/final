@@ -21,6 +21,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Baseline security headers on every response.
+header('X-Content-Type-Options: nosniff');       // stop the browser guessing content types
+header('X-Frame-Options: DENY');                  // stop this site being iframed elsewhere (clickjacking)
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/csrf.php';

@@ -5,7 +5,7 @@ require __DIR__ . '/../../includes/bootstrap.php';
 header('Content-Type: application/json');
 
 $user = current_user();
-if (!$user || $user['role'] !== 'student') {
+if (!$user || $user['role'] !== 'student' || !user_is_currently_active($user['id'])) {
     http_response_code(403);
     echo json_encode(['error' => 'Not allowed.']);
     exit;
